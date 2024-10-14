@@ -1,172 +1,355 @@
 #include <iostream>
-#include <ctime>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iomanip>
 #include <cmath>
-
 /*
- * 2024: Assignment 1.1 (required)
-Working with a field:
+Write a program that will enable the calculation of how many cars can be produced. The program allows you to enter three numbers, namely:
 
-1. Study and use the example.
-2. Modify the program so that 20 random numbers to two decimal places of exact numbers between 0.50 and 150.00 are entered into the field.
- The values represent the cost price in € for an individual purchase.
-3. Complete the program by printing the rounded values of the cost prices to the nearest whole number (e.g. instead of 55.78, 56 is printed).
- It is not allowed to use existing functions that round values, such as e.g. round().
-4. Complete the program by printing the average cost price.
-5. Complete the program by printing the minimum cost price.
-6. Write how many times the purchase amount was higher than €100.
+the number of wheels
+the number of frameworks
+the number of side mirrors
+        Four wheels, one frame and two side mirrors are needed to make one car.
 
-The finished task must have 6 choices in the menu + a choice to exit the program.
- Each choice must be implemented in its own function (similar to the example shown for generation and output).
- In the main program, you only call these functions when you select them in the menu.
- Functions should return values (eg average price), output should be in the menu (unless functions are expected to output, such as printArray).
-Help with generating random numbers:
-std::rand
-std::random_device
- */
+Based on the entered values, the program should print out how many cars can be produced.
+Print the minimum amount of individual parts that we still need to use up all the material.
+Example:
+Number of wheels: 55
+Number of frames: 24
+Number of side mirrors: 32
+Number of possible cars: 13
+We are left with:
+
+Number of wheels: 3
+Number of frames: 11
+Number of side mirrors: 6
+You still need to purchase:
+
+Number of wheels: 41
+Number of frameworks: 0
+Number of side mirrors: 16
+Program Requirements:
+Write a program that asks the user for three integers as long as the given numbers are not positive (use a do while loop).
+
+Calculate and print the number of cars that can be made, the number of parts we have left, and the minimum amount of missing individual parts we need to make so many cars that we have no parts left.
+
+Example program:
+Input number of wheels: 55
+
+Input number of bodies: 24
+
+Input number of mirrors: 32
+
+Number of possible cars: 13
+
+We still have:
+Number of wheels: 3
+Number of bodies: 11
+Number of mirrors: 6
+
+We need additional parts:
+Number of wheels: 41
+Number of bodies: 0
+Number of mirrors: 16
+*/
+
+// FUNCTION PROTOTYPES
+void minimumPossible(int wheelCounter, int bodyCounter, int mirrorCounter, int wheels, int bodies, int mirrors);
+void leftoverMaterial(int leftoverWheels, int leftoverBodies, int leftoverMirrors, int wheels, int bodies, int mirrors);
+void maximumLeftovers(int wheelsLeft, int bodiesLeft, int mirrorsLeft);
+void totalCost(float Wheels, float Bodies, float Mirrors);
 
 using namespace std;
 
-void menu() {
-    cout << "============================" << endl;
-    cout << "=========== MENU ===========" << endl;
-    cout << "============================" << endl;
-    cout << "1 ... GENERATE EXPENSES" << endl;
-    cout << "2 ... PRINT EXPENSES" << endl;
-    cout << "3 ... PRINT ROUNDED EXPENSES" << endl;
-    cout << "4 ... PRINT AVERAGE COST PRICE" << endl;
-    cout << "5 ... PRINT MINIMUM COST PRICE" << endl;
-    cout << "6 ... PRINT COUNT WHEN PURCHASE AMOUNT WAS HIGHER THAN 100eur" << endl;
-    cout << "7 ... SORT ELEMENTS FROM HIGHEST TO LOWEST NUMBER" << endl;
-    cout << "0 ... EXIT" << endl;
-    cout << "============================" << endl;
-    cout << "Select: ";
+// WHOLE NUMBER
+void inputNumbers(int& wheels, int& bodies, int& mirrors){
+    do{
+        cout<<"Write a whole positive number for number of WHEELS: ";
+        cin>>wheels;
+    }while(wheels < 0 );
+
+    cout<<endl;
+    do{
+        cout<<"Write a whole positive number for number of BODIES: ";
+        cin>>bodies;
+    }while(bodies < 0);
+
+    cout<<endl;
+    do{
+        cout<<"Write a whole positive number of MIRRORS: ";
+        cin>>mirrors;
+    }while(mirrors < 0);
+
+    cout<<endl;
+    cout<<"We have this many WHEELS: "<<wheels<<endl;
+    cout<<"We have this many BODIES: "<<bodies<<endl;
+    cout<<"We have this many MIRRORS: "<<mirrors<<endl;
+    cout<<endl;
 }
 
-//two decimal places = multiply it by 100, truncate to integer then divide by 100
-void fillArray(double* array, const unsigned int size) {
-    for (unsigned int i = 0; i < size; i++) {
-        // array[i] = floor(100 * array[i]) / 100;//rand()/(150.00f - 0.50f) + 150.00f; // 0.5f + i;
-        //   double r = (rand() / ( double )RAND_MAX) * (upper - lower) + lower
-        array[i] = 0.50 + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX) / (150.00 - 0.50));
-        array[i] = floor(array[i] * 100 + 0.5) / 100.0;
-
-        //array[i] = ((rand() % 14951 + 50) / 100.0;
-        // max - min + 1
-        // 15000 - 50 + 1
+// COUNT HOW MANY POSSIBLE CARS OF EACH
+void counter(int wheels, int bodies, int mirrors){
+    int wheelCounter = 0;
+    while(wheels >= 4){
+        wheelCounter++;
+        wheels = wheels - 4;
     }
-}
 
-void printArray(const double* array, const unsigned int size) {
-    for (unsigned int i = 0; i < size; i++) {
-        cout <<array[i]<<"eur"<< endl;
+    int bodyCounter = 0;
+    while(bodies >= 1){
+        bodyCounter++;
+        bodies = bodies - 1;
     }
 
-}
-
-// increase by 0.5, f to specify float
-void getRoundedArray(const double* array, const unsigned int size){
-    for (unsigned int i = 0; i < size; i++) {
-        int roundedNumber = (int)(array[i] + (double)0.5);
-        cout<<"Rounded numbers: "<<roundedNumber<<endl;
-
+    int mirrorCounter = 0;
+    while(mirrors >= 2){
+        mirrorCounter++;
+        mirrors = mirrors - 2;
     }
+
+    cout<<"Wheel car possibility: "<<wheelCounter<<endl;
+    cout<<"body car possibility: "<<bodyCounter<<endl;
+    cout<<"mirror car possibility: "<<mirrorCounter<<endl;
+    cout<<endl;
+
+    minimumPossible(wheelCounter, bodyCounter, mirrorCounter, wheels, bodies, mirrors);
 }
 
-double getAverage(const double* array, const unsigned int size) {
-    double sum = 0;
-    double average;
-    for(unsigned int i=0; i < size; i++){
-        sum = sum + array[i];
+void profit(int counter){
+    float cars;
+    cars = (counter) * 7;
+    float oneCarWheel = 4 * 0.30;
+    float oneCarBody = 1 * 1.80;
+    float oneCarMirror =  2 * 0.15;
+
+    float allMaterial = (oneCarWheel + oneCarBody + oneCarMirror) * counter;
+    float total;
+    total = cars - allMaterial;
+    cout<<"Profit for our made cars is: "<<total<<"eur"<<endl;
+}
+
+// MINIMUM CARS POSSIBLE
+void minimumPossible(int wheelCounter, int bodyCounter, int mirrorCounter, int wheels, int bodies, int mirrors) {
+    int leftoverBodies = 0;
+    int leftoverWheels = 0;
+    int leftoverMirrors = 0;
+
+    if (wheelCounter <= bodyCounter && wheelCounter <= mirrorCounter) {
+        // quaranteed cars
+        cout << "Number of possible cars: " << wheelCounter << endl;
+        profit(wheelCounter);
+
+        // cars to materials
+        leftoverBodies = (bodyCounter - wheelCounter) * 1;
+        leftoverWheels = (wheelCounter - wheelCounter) * 4;
+        leftoverMirrors = (mirrorCounter - wheelCounter) * 2;
+
+    } else if (bodyCounter <= wheelCounter && bodyCounter <= mirrorCounter) {
+        cout << "Number of possible cars: " << bodyCounter << endl;
+        profit(bodyCounter);
+
+        leftoverBodies = (bodyCounter - bodyCounter) * 1;
+        leftoverWheels = (wheelCounter - bodyCounter) * 4;
+        leftoverMirrors = (mirrorCounter - bodyCounter) * 2;
+
+    } else if (mirrorCounter <= wheelCounter && mirrorCounter <= bodyCounter) {
+        cout << "Number of possible cars: " << mirrorCounter << endl;
+        profit(mirrorCounter);
+
+        leftoverBodies = (bodyCounter - mirrorCounter) * 1;
+        leftoverWheels = (wheelCounter - mirrorCounter) * 4;
+        leftoverMirrors = (mirrorCounter - mirrorCounter) * 2;
+
+    }else {
+        cout << "Something is wrong " << endl;
     }
-    average = sum / size;
-   // cout<<"Average cost of all values with total sum: "<<sum<< " is "<<setprecision(4)<<average<<endl;
-   return average;
+
+    leftoverMaterial(leftoverWheels, leftoverBodies, leftoverMirrors, wheels, bodies, mirrors);
 }
 
-double getMinimum(const double* array, const unsigned int size) {
-    double minimum = array[0];
-    for(unsigned int i=1; i < size; i++) {
-        if(minimum > array[i]){
-            minimum = array[i];
+
+
+// LEFTOVERS CALCULATE
+void leftoverMaterial(int leftoverWheels, int leftoverBodies, int leftoverMirrors, int wheels, int bodies, int mirrors) {
+    // from these leftovers. wheels from counter/minimum
+    int wheelsLeft = leftoverWheels + wheels;
+    int bodiesLeft = leftoverBodies + bodies;
+    int mirrorsLeft = leftoverMirrors + mirrors;
+
+    cout<<"Leftovers for wheels: "<< wheelsLeft <<endl;
+    cout<<"Leftovers for bodies: "<< bodiesLeft <<endl;
+    cout<<"Leftovers for mirrors: "<< mirrorsLeft <<endl;
+    cout<<endl;
+
+    maximumLeftovers(wheelsLeft, bodiesLeft, mirrorsLeft);
+}
+
+// LOOK FOR MAXIMUM AND HOW MANY MATERIAL WE NEED LEFT
+void maximumLeftovers(int wheelsLeft, int bodiesLeft, int mirrorsLeft) {
+    // Possible cars
+    float maxWheelCars = (float) wheelsLeft / 4;
+    float maxMirrorCars = (float) mirrorsLeft / 2;
+    float maxBodyCars = (float) bodiesLeft / 1;
+
+    int Wheels = 0;
+    int Bodies = 0;
+    int Mirrors = 0;
+
+/*
+    cout<<"+ 0.5"<<endl;
+    cout<<ourMirrors<<endl;
+    cout<<ourMirrors<<endl;
+    cout<<ourBodies<<endl;
+
+
+    ourWheels = round(ourWheels);
+    ourBodies = round(ourBodies);
+    ourMirrors = round(ourMirrors);
+
+    cout<<"After rounding"<<endl;
+    cout<<ourMirrors<<endl;
+    cout<<ourMirrors<<endl;
+    cout<<ourBodies<<endl;*/
+   /*round(ourWheels = (int) (ourWheels + (float) 0.5));
+    round(ourBodies = (int) (ourBodies + (float) 0.5));
+    round(ourMirrors = (int) (ourMirrors + (float) 0.5));
+*/
+
+
+
+   /* ourWheels = round(ourWheels);
+    ourBodies = round(ourBodies);
+    ourMirrors = round(ourMirrors);*/
+
+    if (maxWheelCars >= maxBodyCars && maxWheelCars >= maxMirrorCars && maxWheelCars > 0) {
+
+
+        cout << "Number of maximum cars from leftover material: " << maxWheelCars << endl;
+       // maxWheelCars = (float)(maxWheelCars + (float) 0.5);
+        maxWheelCars = round(maxWheelCars);
+
+       // maxBodyCars = (float)(maxBodyCars + (float) 0.5);
+        maxBodyCars = round(maxBodyCars);
+
+        //maxMirrorCars = (float)(maxMirrorCars + (float) 0.5);
+        maxMirrorCars = round(maxMirrorCars);
+
+if(maxWheelCars == 0){
+    maxWheelCars++;
+}
+
+        /*if (ourWheels <= 0) {
+            ourWheels = 0;
+            ourMirrors = 0;
+            ourBodies = 0;*/
+
+           /* Wheels = (maxWheelCars * 4) - wheelsLeft;
+            Mirrors = (maxWheelCars *)
+            */
+
+           // Wheels = (wheelsLeft * 4) - maxWheelCars;
+           Wheels = (maxWheelCars * 4) - wheelsLeft;
+           Bodies = (maxWheelCars * 1) - bodiesLeft;
+           Mirrors = (maxWheelCars * 2) - mirrorsLeft;
+          /*  Bodies = (maxWheelCars - maxBodyCars) * 1;
+            Mirrors = (maxWheelCars - maxMirrorCars) * 2;*/
+
+
+           /* Wheels = (maxWheelCars * 4) - maxWheelCars;
+            Mirrors = (maxWheelCars - maxMirrorCars) * 2;
+            Bodies = (maxWheelCars - maxBodyCars) * 1;*/
+
+
+    } else if (maxBodyCars >= maxMirrorCars && maxBodyCars >= maxWheelCars && maxBodyCars > 0) {
+        //int targetCars = (int)((float)ourBodies + (float)0.5);
+        cout << "Number of maximum cars from leftover material: " << maxBodyCars << endl;
+       // maxWheelCars = (float)(maxWheelCars + (float) 0.5);
+        maxWheelCars = round(maxWheelCars);
+
+       // maxBodyCars = (float)(maxBodyCars + (float) 0.5);
+        maxBodyCars = round(maxBodyCars);
+
+       // maxMirrorCars = (float)(maxMirrorCars + (float) 0.5);
+        maxMirrorCars = round(maxMirrorCars);
+        if(maxBodyCars == 0){
+            maxBodyCars++;
         }
+        /*if( ourBodies <= 0){
+            ourWheels = 0;
+            ourMirrors = 0;
+            ourBodies = 0;
+        }*/
+
+
+
+        Wheels = (maxBodyCars * 4) - wheelsLeft;
+        Bodies = (maxBodyCars * 1) - bodiesLeft;
+        Mirrors = (maxBodyCars * 2) - mirrorsLeft;
+
+/*
+        Wheels = (maxBodyCars - maxWheelCars) * 4;
+       // Bodies = (maxBodyCars - maxBodyCars) * 1;
+        Bodies =  (maxBodyCars * 1) - wheelsLeft;
+        Mirrors = (maxBodyCars - maxMirrorCars) * 2;*/
+
+
+    } else if (maxMirrorCars >= maxBodyCars && maxMirrorCars >= maxWheelCars && maxMirrorCars > 0) {
+        //int targetCars = (int)(ourMirrors + (float)0.5);
+        cout << "Number of maximum cars from leftover material: " << maxMirrorCars<< endl;
+       // maxWheelCars = (float)(maxWheelCars + (float) 0.5);
+        maxWheelCars = round(maxWheelCars);
+
+      //  maxBodyCars = (float)(maxBodyCars + (float) 0.5);
+        maxBodyCars = round(maxBodyCars);
+
+       // maxMirrorCars = (float)(maxMirrorCars + (float) 0.5);
+        maxMirrorCars = round(maxMirrorCars);
+
+        if(maxMirrorCars == 0){
+            maxMirrorCars++;
+        }
+        /* if(ourMirrors <= 0){
+             ourWheels = 0;
+             ourMirrors = 0;
+             ourBodies = 0;
+         }*/
+        // if(ourMirrors >= 0){
+
+        Wheels = (maxMirrorCars * 4) - wheelsLeft;
+        Bodies = (maxMirrorCars * 1) - bodiesLeft;
+        Mirrors = (maxMirrorCars * 2) - mirrorsLeft;
+/*
+        Wheels = (maxMirrorCars - maxWheelCars) * 4;
+        Bodies = (maxMirrorCars - maxBodyCars) * 1;
+        //Mirrors = (maxMirrorCars - maxMirrorCars) * 2;
+        Mirrors = (maxMirrorCars * 2) - mirrorsLeft;
+
+*/
     }
-    //cout<<"Minimum cost of all values is: "<<minimum<<endl;
-    return minimum;
+
+ else {
+        cout << "Something is wrong " << endl;
+    }
+    cout<<"We need this more wheels: "<< Wheels <<endl;
+    cout<<"We need this more bodies: "<< Bodies <<endl;
+    cout<<"We need this more mirrors: "<< Mirrors <<endl;
+    cout<<endl;
+
+    totalCost(Wheels, Bodies, Mirrors);
 }
 
-double getCount(const double* array, const unsigned int size) {
-    int counter = 0;
-    for(unsigned int i=0; i < size; i++) {
-        if(array[i] > 100){
-            counter++;
-        }
-    }
-   // cout<<"Cost was higher than 100eur: "<<counter<<" times"<<endl;
-   return counter;
-}
+void totalCost(float Wheels, float Bodies, float Mirrors) {
+    float costWheels = Wheels * 0.30;
+    float costBodies = Bodies * 1.80;
+    float costMirrors = Mirrors * 0.15;
 
-void sortElements(double* array, const unsigned int size){
-    double temp;
-    for(int i=0; i < size; i++){
-        for(int j = size - 1; j > i; j--){
-            if(array[j-1] < array[j]){
-                temp = array[j];
-                array[j] = array[j-1];
-                array[j-1] = temp;
-            }
-        }
-    }
+    float total = costWheels + costBodies + costMirrors;
+    cout<<"Cost of necessary material is: "<<total<<endl;
 }
 
 int main() {
-    const unsigned int numOfExpenses =  20;
-    auto* expenses = new double[numOfExpenses];
+    int wheels;
+    int bodies;
+    int mirrors;
 
-    srand(time(nullptr));
-
-    bool running = true;
-    int selection;
-
-    do {
-        menu();
-        cin >> selection;
-        switch (selection) {
-            case 1:
-                fillArray(expenses, numOfExpenses);
-                break;
-            case 2:
-                printArray(expenses, numOfExpenses);
-                break;
-            case 3:
-                getRoundedArray(expenses, numOfExpenses);
-                break;
-            case 4:
-                cout << getAverage(expenses, numOfExpenses);
-                break;
-            case 5:
-                cout << getMinimum(expenses, numOfExpenses);
-                break;
-            case 6:
-                cout << getCount(expenses, numOfExpenses);
-                break;
-            case 7:
-                sortElements(expenses, numOfExpenses);
-                break;
-            case 0:
-                running = false;
-                break;
-            default:
-                cout << "Wrong selection!" << endl;
-                break;
-        }
-        cout << endl;
-    } while (running);
-
-    delete[] expenses;
-
+    inputNumbers(wheels, bodies, mirrors);
+    counter(wheels, bodies, mirrors);
     return 0;
 }
